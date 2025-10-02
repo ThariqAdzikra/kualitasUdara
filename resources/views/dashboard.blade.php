@@ -28,16 +28,9 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(74, 144, 226, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(138, 43, 226, 0.1) 0%, transparent 50%);
+            background: radial-gradient(circle at 20% 50%, rgba(74, 144, 226, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(138, 43, 226, 0.1) 0%, transparent 50%);
             pointer-events: none;
             animation: bgPulse 15s ease-in-out infinite;
-        }
-
-        @keyframes bgPulse {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.6; }
         }
 
         .navbar {
@@ -134,16 +127,6 @@
             overflow: hidden;
         }
 
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, transparent, currentColor, transparent);
-        }
-
         .stat-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
@@ -226,29 +209,32 @@
             border-radius: 50%;
             animation: blink 2s ease-in-out infinite;
         }
+        
+        /* === Animations === */
+        @keyframes bgPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
 
         @keyframes blink {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.3; }
         }
 
+        /* === Media Queries === */
         @media (max-width: 768px) {
             .container {
                 padding: 30px 20px;
             }
-
             .header h1 {
                 font-size: 32px;
             }
-
             .stat-value {
                 font-size: 32px;
             }
-
             .chart-wrapper {
                 height: 300px;
             }
-
             .chart-container {
                 padding: 25px;
             }
@@ -275,45 +261,28 @@
         <div class="stats-grid">
             <div class="stat-card" style="color: #667eea;">
                 <div class="stat-label">PPM Saat Ini</div>
-                <div class="stat-value">
-                    {{ $stats['current']->ppm ?? 'N/A' }}
-                    <span class="stat-unit">PPM</span>
-                </div>
+                <div class="stat-value">{{ number_format($stats['current']->ppm ?? 0, 2) }} <span class="stat-unit">PPM</span></div>
             </div>
-
             <div class="stat-card" style="color: #10b981;">
                 <div class="stat-label">Rata-rata 24 Jam</div>
-                <div class="stat-value">
-                    {{ $stats['avg_24h'] ?? 'N/A' }}
-                    <span class="stat-unit">PPM</span>
-                </div>
+                <div class="stat-value">{{ number_format($stats['avg_24h'] ?? 0, 2) }} <span class="stat-unit">PPM</span></div>
             </div>
-
             <div class="stat-card" style="color: #ef4444;">
                 <div class="stat-label">Maksimum 24 Jam</div>
-                <div class="stat-value">
-                    {{ $stats['max_24h'] ?? 'N/A' }}
-                    <span class="stat-unit">PPM</span>
-                </div>
+                <div class="stat-value">{{ number_format($stats['max_24h'] ?? 0, 2) }} <span class="stat-unit">PPM</span></div>
             </div>
-
             <div class="stat-card" style="color: #3b82f6;">
                 <div class="stat-label">Minimum 24 Jam</div>
-                <div class="stat-value">
-                    {{ $stats['min_24h'] ?? 'N/A' }}
-                    <span class="stat-unit">PPM</span>
-                </div>
+                <div class="stat-value">{{ number_format($stats['min_24h'] ?? 0, 2) }} <span class="stat-unit">PPM</span></div>
             </div>
         </div>
 
         <div class="chart-container">
             <div class="chart-header">
                 <h2>Grafik Kadar PPM Per Jam</h2>
-                <p>Monitoring kadar polutan udara dalam 24 jam terakhir</p>
+                <p>Monitoring kadar polutan udara (CO2) dalam 24 jam terakhir</p>
             </div>
-            <div class="chart-wrapper">
-                <canvas id="ppmChart"></canvas>
-            </div>
+            <div class="chart-wrapper"><canvas id="ppmChart"></canvas></div>
         </div>
 
         <div class="chart-container">
@@ -321,169 +290,46 @@
                 <h2>Distribusi Status Kualitas Udara</h2>
                 <p>Persentase kategori kualitas udara dalam 24 jam terakhir</p>
             </div>
-            <div class="chart-wrapper">
-                <canvas id="statusChart"></canvas>
-            </div>
+            <div class="chart-wrapper"><canvas id="statusChart"></canvas></div>
         </div>
 
         <div class="update-info">
-            <p>
-                <span class="refresh-indicator"></span>
-                Dashboard diperbarui otomatis setiap 1 jam
-            </p>
+            <p><span class="refresh-indicator"></span> Dashboard diperbarui otomatis setiap 1 jam</p>
         </div>
     </div>
 
     <script>
-        // Data dari Laravel
+        // Data dari Laravel untuk Line Chart
         const hourlyData = @json($hourlyData);
-        
-        // Prepare data untuk chart
-        const labels = Object.keys(hourlyData).map(time => {
-            const date = new Date(time);
-            return date.toLocaleString('id-ID', { 
-                month: 'short', 
-                day: 'numeric', 
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        });
-        
+        const labels = Object.keys(hourlyData).map(time => new Date(time).toLocaleString('id-ID', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'}));
         const ppmValues = Object.values(hourlyData).map(item => item.avg_ppm);
 
-        // Chart PPM Per Jam
+        // Chart PPM Per Jam (Line Chart)
         const ctx1 = document.getElementById('ppmChart').getContext('2d');
         const gradient1 = ctx1.createLinearGradient(0, 0, 0, 400);
         gradient1.addColorStop(0, 'rgba(102, 126, 234, 0.8)');
         gradient1.addColorStop(1, 'rgba(118, 75, 162, 0.1)');
+        new Chart(ctx1, { type: 'line', data: { labels: labels, datasets: [{ label: 'Kadar PPM', data: ppmValues, backgroundColor: gradient1, borderColor: '#667eea', borderWidth: 3, fill: true, tension: 0.4, pointRadius: 5, pointHoverRadius: 8, pointBackgroundColor: '#667eea', pointBorderColor: '#ffffff', pointBorderWidth: 2, pointHoverBackgroundColor: '#ffffff', pointHoverBorderColor: '#667eea', pointHoverBorderWidth: 3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, labels: { color: '#ffffff', font: { size: 14, family: 'Inter' }, padding: 20 } }, tooltip: { backgroundColor: 'rgba(15, 20, 35, 0.95)', titleColor: '#ffffff', bodyColor: '#a0aec0', borderColor: '#667eea', borderWidth: 1, padding: 15, displayColors: true, callbacks: { label: (context) => 'PPM: ' + context.parsed.y.toFixed(2) } } }, scales: { x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#a0aec0', font: { size: 11 }, maxRotation: 45, minRotation: 45 } }, y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#a0aec0', font: { size: 12 }, callback: (value) => value + ' PPM' }, beginAtZero: true } }, interaction: { intersect: false, mode: 'index' } } });
 
-        new Chart(ctx1, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Kadar PPM',
-                    data: ppmValues,
-                    backgroundColor: gradient1,
-                    borderColor: '#667eea',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 5,
-                    pointHoverRadius: 8,
-                    pointBackgroundColor: '#667eea',
-                    pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2,
-                    pointHoverBackgroundColor: '#ffffff',
-                    pointHoverBorderColor: '#667eea',
-                    pointHoverBorderWidth: 3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        labels: {
-                            color: '#ffffff',
-                            font: {
-                                size: 14,
-                                family: 'Inter'
-                            },
-                            padding: 20
-                        }
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(15, 20, 35, 0.95)',
-                        titleColor: '#ffffff',
-                        bodyColor: '#a0aec0',
-                        borderColor: '#667eea',
-                        borderWidth: 1,
-                        padding: 15,
-                        displayColors: true,
-                        callbacks: {
-                            label: function(context) {
-                                return 'PPM: ' + context.parsed.y.toFixed(2);
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.05)',
-                            drawBorder: false
-                        },
-                        ticks: {
-                            color: '#a0aec0',
-                            font: {
-                                size: 11
-                            },
-                            maxRotation: 45,
-                            minRotation: 45
-                        }
-                    },
-                    y: {
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.05)',
-                            drawBorder: false
-                        },
-                        ticks: {
-                            color: '#a0aec0',
-                            font: {
-                                size: 12
-                            },
-                            callback: function(value) {
-                                return value + ' PPM';
-                            }
-                        },
-                        beginAtZero: true
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                }
-            }
-        });
-
-        // Status Distribution Chart (Pie Chart)
+        // Chart Distribusi Status (Doughnut Chart)
         const ctx2 = document.getElementById('statusChart').getContext('2d');
-        
-        // Hitung distribusi status (contoh data, sesuaikan dengan data real)
-        const statusCounts = {
-            'Baik': 0,
-            'Sedang': 0,
-            'Tidak Sehat': 0,
-            'Berbahaya': 0
-        };
-
-        // Simulasi perhitungan berdasarkan PPM values
-        ppmValues.forEach(ppm => {
-            if (ppm < 50) statusCounts['Baik']++;
-            else if (ppm < 100) statusCounts['Sedang']++;
-            else if (ppm < 200) statusCounts['Tidak Sehat']++;
-            else statusCounts['Berbahaya']++;
-        });
+        const statusDistributionData = @json($statusDistribution);
 
         new Chart(ctx2, {
             type: 'doughnut',
             data: {
-                labels: Object.keys(statusCounts),
+                labels: Object.keys(statusDistributionData),
                 datasets: [{
-                    data: Object.values(statusCounts),
+                    data: Object.values(statusDistributionData),
                     backgroundColor: [
-                        'rgba(16, 185, 129, 0.8)',
-                        'rgba(245, 158, 11, 0.8)',
-                        'rgba(239, 68, 68, 0.8)',
-                        'rgba(220, 38, 38, 0.8)'
+                        'rgba(16, 185, 129, 0.8)',   // Baik
+                        'rgba(245, 158, 11, 0.8)',  // Normal
+                        'rgba(239, 68, 68, 0.8)',  // Kurang Baik
+                        'rgba(220, 38, 38, 0.8)',  // Buruk
+                        'rgba(139, 0, 0, 0.8)'      // Bahaya
                     ],
                     borderColor: [
-                        '#10b981',
-                        '#f59e0b',
-                        '#ef4444',
-                        '#dc2626'
+                        '#10b981', '#f59e0b', '#ef4444', '#dc2626', '#8b0000'
                     ],
                     borderWidth: 2,
                     hoverOffset: 10
@@ -493,31 +339,15 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            color: '#ffffff',
-                            font: {
-                                size: 14,
-                                family: 'Inter'
-                            },
-                            padding: 20,
-                            usePointStyle: true,
-                            pointStyle: 'circle'
-                        }
-                    },
+                    legend: { position: 'bottom', labels: { color: '#ffffff', font: { size: 14, family: 'Inter' }, padding: 20, usePointStyle: true, pointStyle: 'circle' } },
                     tooltip: {
-                        backgroundColor: 'rgba(15, 20, 35, 0.95)',
-                        titleColor: '#ffffff',
-                        bodyColor: '#a0aec0',
-                        borderColor: '#667eea',
-                        borderWidth: 1,
-                        padding: 15,
+                        backgroundColor: 'rgba(15, 20, 35, 0.95)', titleColor: '#ffffff', bodyColor: '#a0aec0', borderColor: '#667eea', borderWidth: 1, padding: 15,
                         callbacks: {
                             label: function(context) {
                                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                if (total === 0) return context.label + ': 0 (0%)';
                                 const percentage = ((context.parsed / total) * 100).toFixed(1);
-                                return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                                return context.label + ': ' + context.parsed + ' data points (' + percentage + '%)';
                             }
                         }
                     }
@@ -525,10 +355,7 @@
             }
         });
 
-        // Auto refresh halaman setiap 1 jam
-        setTimeout(function() {
-            location.reload();
-        }, 3600000); // 1 jam = 3600000 ms
+        setTimeout(() => location.reload(), 3600000); // Auto refresh 1 jam
     </script>
 </body>
 </html>
