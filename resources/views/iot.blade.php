@@ -161,14 +161,17 @@
             font-size: 140px;
             font-weight: 900;
             letter-spacing: 8px;
-            margin: 30px 0;
             position: relative;
             z-index: 1;
-            text-shadow: 
-                0 0 20px currentColor,
-                0 0 40px currentColor,
-                0 0 60px currentColor;
-            animation: glow 2s ease-in-out infinite;
+            
+            color: #f59e0b; 
+
+            text-shadow:
+                0 0 7px rgba(220, 38, 38, 0.9), 
+
+                0 0 25px rgba(220, 38, 38, 0.5),
+
+                0 0 55px rgba(220, 38, 38, 0.2);
         }
 
         @keyframes glow {
@@ -401,7 +404,7 @@
         <div class="main-display">
             <div class="label">Kadar PPM (Parts Per Million)</div>
             <div class="digital-display {{ strtolower(str_replace(' ', '-', $kategori)) }}" id="ppm-display">
-                <span id="ppm-value">{{ $ppm }}</span><span class="unit">PPM</span>
+                <span id="ppm-value">{{ number_format($ppm, 2) }}</span><span class="unit">PPM</span>
             </div>
         </div>
 

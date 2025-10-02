@@ -84,8 +84,8 @@ class IoTController extends Controller
         $stats = [
             'current' => AirQualityLog::latest('recorded_at')->first(),
             'avg_24h' => round(AirQualityLog::where('recorded_at', '>=', Carbon::now()->subHours(24))->avg('ppm'), 2),
-            'max_24h' => AirQualityLog::where('recorded_at', '>=', Carbon::now()->subHours(24))->max('ppm'),
-            'min_24h' => AirQualityLog::where('recorded_at', '>=', Carbon::now()->subHours(24))->min('ppm'),
+            'max_24h' => round(AirQualityLog::where('recorded_at', '>=', Carbon::now()->subHours(24))->max('ppm'), 2),
+            'min_24h' => round(AirQualityLog::where('recorded_at', '>=', Carbon::now()->subHours(24))->min('ppm'), 2),
         ];
 
         return view('dashboard', [
@@ -109,7 +109,7 @@ class IoTController extends Controller
         $feed = $data['feeds'][0] ?? [];
 
         return response()->json([
-            'ppm' => $feed['field1'] ?? 0,
+            'ppm' => isset($feed['field1']) ? round($feed['field1'], 2) : 0,
             'kategori' => $feed['field2'] ?? 0,
             'arah' => $feed['field3'] ?? 0,
         ]);
