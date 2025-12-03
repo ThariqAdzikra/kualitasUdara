@@ -13,8 +13,6 @@ class IoTController extends Controller
     {
         if ($ppm <= 800)
             return ['code' => 1, 'text' => "Baik"];
-        if ($ppm <= 1000)
-            return ['code' => 2, 'text' => "Normal"];
         if ($ppm <= 2000)
             return ['code' => 3, 'text' => "Kurang Baik"];
         if ($ppm <= 5000)
@@ -35,10 +33,9 @@ class IoTController extends Controller
         $data = $response->json();
         $feed = $data['feeds'][0] ?? [];
 
-        // Mapping kategori BARU (disesuaikan dengan Arduino)
+        // Mapping kategori (updated logic)
         $kategoriList = [
             1 => "Baik",
-            2 => "Normal",
             3 => "Kurang Baik",
             4 => "Buruk",
             5 => "Bahaya",
