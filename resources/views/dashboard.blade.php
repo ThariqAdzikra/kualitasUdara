@@ -34,10 +34,6 @@
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen">
-    <!-- Background Pattern -->
-    <div class="fixed inset-0 opacity-5">
-        <div class="absolute inset-0" style="background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, cyan 2px, cyan 4px); background-size: 100% 4px;"></div>
-    </div>
     
     <!-- Navbar -->
     <nav class="relative border-b border-slate-800/50 backdrop-blur-xl bg-slate-900/50">
@@ -88,7 +84,7 @@
                 </div>
                 <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">PPM Saat Ini</div>
                 <div class="digital-display text-5xl font-bold text-cyan-400 mb-1">
-                    {{ number_format($stats['current']->ppm ?? 0, 2) }}
+                    {{ number_format($stats['current']->ppm ?? 0, 0) }}
                 </div>
                 <div class="text-xs text-slate-400 mt-2 uppercase tracking-wide">Parts Per Million</div>
             </div>
@@ -104,7 +100,7 @@
                 </div>
                 <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Rata-rata 24 Jam</div>
                 <div class="digital-display text-5xl font-bold text-blue-400 mb-1">
-                    {{ number_format($stats['avg_24h'] ?? 0, 2) }}
+                    {{ number_format($stats['avg_24h'] ?? 0, 0) }}
                 </div>
                 <div class="text-xs text-slate-400 mt-2 uppercase tracking-wide">PPM Average</div>
             </div>
@@ -120,7 +116,7 @@
                 </div>
                 <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Maksimum 24 Jam</div>
                 <div class="digital-display text-5xl font-bold text-red-400 mb-1">
-                    {{ number_format($stats['max_24h'] ?? 0, 2) }}
+                    {{ number_format($stats['max_24h'] ?? 0, 0) }}
                 </div>
                 <div class="text-xs text-slate-400 mt-2 uppercase tracking-wide">PPM Peak</div>
             </div>
@@ -136,7 +132,7 @@
                 </div>
                 <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Minimum 24 Jam</div>
                 <div class="digital-display text-5xl font-bold text-emerald-400 mb-1">
-                    {{ number_format($stats['min_24h'] ?? 0, 2) }}
+                    {{ number_format($stats['min_24h'] ?? 0, 0) }}
                 </div>
                 <div class="text-xs text-slate-400 mt-2 uppercase tracking-wide">PPM Lowest</div>
             </div>

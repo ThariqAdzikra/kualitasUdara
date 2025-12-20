@@ -133,7 +133,7 @@ class IoTController extends Controller
         $feed = $data['feeds'][0] ?? [];
 
         return response()->json([
-            'ppm' => isset($feed['field1']) ? number_format($feed['field1'], 2) : 0,
+            'ppm' => isset($feed['field1']) ? number_format($feed['field1'], 0) : 0,
             'kategori' => $feed['field2'] ?? 1,
             'arah' => $feed['field3'] ?? 0,
         ]);
