@@ -71,10 +71,6 @@
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen">
-    <!-- Background Pattern -->
-    <div class="fixed inset-0 opacity-5">
-        <div class="absolute inset-0" style="background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, cyan 2px, cyan 4px); background-size: 100% 4px;"></div>
-    </div>
     
     <!-- Navbar -->
     <nav class="relative border-b border-slate-800/50 backdrop-blur-xl bg-slate-900/50">
@@ -130,8 +126,8 @@
                     <!-- PPM Display - Digital LED Style -->
                     <div class="text-center mb-8">
                         <div id="ppm-display" class="digital-display text-7xl sm:text-8xl md:text-9xl font-bold text-cyan-400 animate-pulse-glow value-transition">
-                            {{ number_format($ppm, 2) }}
-                        </div>
+                        {{ number_format($ppm, 0) }}
+                    </div>
                         <div class="mt-4 text-2xl text-cyan-400/60 font-semibold tracking-wider">PPM</div>
                     </div>
 
